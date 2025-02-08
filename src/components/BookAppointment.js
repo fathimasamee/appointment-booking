@@ -1,58 +1,73 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import "./styles.css";
 
-const availableSlots = [
-  "10:00 AM - 11:00 AM",
-  "11:00 AM - 12:00 PM",
-  "2:00 PM - 3:00 PM",
-  "3:00 PM - 4:00 PM",
-];
-
 const BookAppointment = () => {
-  const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    contact: "",
+    date: "",
+    time: ""
+  });
+
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!time) {
-      alert("Please select a time slot");
-      return;
-    }
-    alert("Appointment Booked!");
+    alert("Appointment Booked Successfully!");
     navigate("/my-appointments");
   };
 
   return (
-    <motion.div className="container" initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
+    <motion.div 
+      className="container" 
+      initial={{ scale: 0.9, opacity: 0 }} 
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <h2>Book an Appointment</h2>
       <form onSubmit={handleSubmit} className="form">
-        <input
-          type="text"
-          placeholder="Your Name"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+        <input 
+          type="text" 
+          name="name" 
+          placeholder="Your Name" 
+          value={formData.name} 
+          required 
+          onChange={handleChange} 
         />
-        <input
-          type="tel"
-          placeholder="Contact Number"
-          required
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
+        <input 
+          type="tel" 
+          name="contact" 
+          placeholder="Contact Number" 
+          value={formData.contact} 
+          required 
+          onChange={handleChange} 
         />
-        <Calendar onChange={setDate} value={date} />
-        <select required value={time} onChange={(e) => setTime(e.target.value)}>
+        <input 
+          type="date" 
+          name="date" 
+          value={formData.date} 
+          required 
+          onChange={handleChange} 
+        />
+        <select 
+          name="time" 
+          value={formData.time} 
+          required 
+          onChange={handleChange}
+        >
           <option value="">Select Time Slot</option>
-          {availableSlots.map((slot, index) => (
-            <option key={index} value={slot}>{slot}</option>
-          ))}
+          <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+          <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
         </select>
         <button type="submit" className="btn">Book Now</button>
       </form>

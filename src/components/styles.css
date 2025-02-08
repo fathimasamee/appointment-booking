@@ -1,0 +1,203 @@
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #ffffff;
+  color: #24305E;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 300px;
+  background-image: url('./assets/img.png'); /* Update with your image name */
+  background-repeat: no-repeat;
+  background-position: top right;
+  background-size: contain;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  position: relative;
+}
+
+/* Navbar Styles */
+.navbar {
+  background-color: #24305E;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 12px rgba(36, 48, 94, 0.2);
+}
+
+.navbar .logo {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(36, 48, 94, 0.2);
+}
+
+.navbar ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin-top: 1rem;
+}
+
+.navbar a {
+  color: #A8D0E6;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+  color: #ffffff;
+}
+
+/* Appointment List Styles */
+.slots {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.slots li {
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(36, 48, 94, 0.1);
+  border: 1px solid rgba(36, 48, 94, 0.1);
+  color: #24305E;
+}
+
+.slots a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  background-color: #F76C6C;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.slots a:hover {
+  background-color: #24305E;
+  color: #ffffff;
+}
+
+/* Form Styles */
+.form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 2rem auto;
+  border: 1px solid rgba(36, 48, 94, 0.1);
+  box-shadow: 0 4px 12px rgba(36, 48, 94, 0.1);
+}
+
+.form input,
+.form select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #24305E;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #24305E;
+}
+
+.form input:focus,
+.form select:focus {
+  outline: none;
+  border-color: #F76C6C;
+  box-shadow: 0 0 0 2px rgba(247, 108, 108, 0.2);
+}
+
+.form input::placeholder {
+  color: #374785;
+  opacity: 0.7;
+}
+
+.form select option {
+  background-color: #ffffff;
+  color: #24305E;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #F76C6C;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #24305E;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(36, 48, 94, 0.2);
+}
+
+/* User Appointments Styles */
+.appointments {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.appointments li {
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(36, 48, 94, 0.1);
+  box-shadow: 0 4px 12px rgba(36, 48, 94, 0.1);
+  color: #24305E;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: #F76C6C;
+  border: 1px solid #F76C6C;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #F76C6C;
+  color: #ffffff;
+}
+
+/* Headings */
+h2 {
+  color: #24305E;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
+/* Rest of your styles remain the same */

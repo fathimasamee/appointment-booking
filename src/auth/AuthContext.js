@@ -7,6 +7,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Set up axios defaults
+  useEffect(() => {
+    axios.defaults.baseURL = 'http://localhost:5000';
+    axios.defaults.withCredentials = false;
+  }, []);
+
   // Check if the user is authenticated when the app loads
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -18,41 +24,59 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Verify the user's token with the backend
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/auth/verify');
+      const response = await axios.get('/auth/verify');
       setUser(response.data);
     } catch (error) {
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
-      setUser(null); // Set user to null if token verification fails
+      setUser(null);
     } finally {
-      setLoading(false); // Finished checking auth status
+      setLoading(false);
     }
   };
 
-  // Login function that will store the token and user data
   const login = async (email, password) => {
-    const response = await axios.post('http://localhost:5000/auth/login', {
-      email,
-      password
-    });
-    const { token, user: userData } = response.data;
-    localStorage.setItem('token', token); // Save token in localStorage
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(userData); // Set user data
+    try {
+      const response = await axios.post('/auth/login', {
+        email,
+        password
+      });
+      const { token, user: userData } = response.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  // Logout function to clear the token and user data
+  const register = async (email, password) => {
+    try {
+      const response = await axios.post('/auth/register', {
+        email,
+        password
+      });
+      const { token, user: userData } = response.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
-    setUser(null); // Clear user data
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import "../components/styles.css"; // Import the updated CSS
+import "../components/styles.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -10,24 +10,47 @@ const Signup = () => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
     if (!formData.email || !formData.password || !formData.confirmPassword) {
       setError("All fields are required.");
+      setIsLoading(false);
       return;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
+      setIsLoading(false);
       return;
     }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await login(formData.email, formData.password);
+      await register(formData.email, formData.password);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Signup failed");
+      if (err.response?.status === 400 && err.response?.data?.message === 'Email already registered') {
+        setError("This email is already registered. Please use a different email.");
+      } else if (err.response?.data?.errors) {
+        const validationErrors = err.response.data.errors.map(error => error.msg).join(". ");
+        setError(validationErrors);
+      } else {
+        setError(err.response?.data?.message || "Registration failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,6 +67,7 @@ const Signup = () => {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
             className="signup-input"
+            disabled={isLoading}
           />
           <input
             type="password"
@@ -52,6 +76,7 @@ const Signup = () => {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
             className="signup-input"
+            disabled={isLoading}
           />
           <input
             type="password"
@@ -60,8 +85,15 @@ const Signup = () => {
             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             required
             className="signup-input"
+            disabled={isLoading}
           />
-          <button type="submit" className="signup-button">Sign Up</button>
+          <button 
+            type="submit"
+            className="signup-button"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Sign Up"}
+          </button>
         </form>
       </div>
     </div>

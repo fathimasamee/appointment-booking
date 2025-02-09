@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import './styles.css'; // Import CSS file
-
+import './styles.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -16,11 +16,15 @@ const Login = () => {
       setError("Both fields are required.");
       return;
     }
+
+    setIsLoading(true);
     try {
       await login(formData.email, formData.password);
-      navigate('/'); // Redirect to home page after login
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -39,6 +43,7 @@ const Login = () => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              disabled={isLoading}
             />
             <input
               type="password"
@@ -46,8 +51,14 @@ const Login = () => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
+              disabled={isLoading}
             />
-            <button type="submit">Login</button>
+            <button 
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in..." : "Login"}
+            </button>
           </form>
           <div className="login-links">
             <a href="/forgot-password">Forgot your password?</a>

@@ -1,22 +1,29 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React from "react"; // Removed `useState`
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import AppointmentList from "./components/AppointmentList";
 import BookAppointment from "./components/BookAppointment";
 import UserAppointments from "./components/UserAppointment";
 import Login from "./components/Login"; 
-import Signup from "./components/Signup"; // Fixed import
+import Signup from "./components/Signup"; 
 import { useAuth } from "./auth/AuthContext"; 
 import "./components/styles.css";
 
-// Protected Route Component
-const ProtectedRoute = ({ element, ...rest }) => {
+// Protected Route Component with Notification
+const ProtectedRoute = ({ element }) => {
   const { user } = useAuth();
-  return user ? element : <Navigate to="/login" />;
+  const location = useLocation();
+  
+  if (!user) {
+    alert("Please login first!"); // Notification
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return element;
 };
 
 const App = () => {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -24,13 +31,20 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar />
+      {/* Show Navbar only when user is logged in */}
+      {user && <Navbar />}
+      
       <Routes>
-        <Route path="/" element={<AppointmentList />} />
-        <Route path="/book" element={<BookAppointment />} />
-        <Route path="/my-appointments" element={<ProtectedRoute element={<UserAppointments />} />} />
+        {/* Redirect "/" to "/login" as the default page */}
+        <Route path="/" element={<Navigate replace to="/login" />} />
+        
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} /> {/* Added Signup Route */}
+        <Route path="/signup" element={<Signup />} /> 
+
+        {/* Protected Routes (only accessible after login) */}
+        <Route path="/appointments" element={<ProtectedRoute element={<AppointmentList />} />} />
+        <Route path="/book" element={<ProtectedRoute element={<BookAppointment />} />} />
+        <Route path="/my-appointments" element={<ProtectedRoute element={<UserAppointments />} />} />
       </Routes>
     </Router>
   );

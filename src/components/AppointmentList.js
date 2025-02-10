@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Card, CardHeader, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Calendar } from "./ui/calendar";
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from "../auth/AuthContext";
+import { Calendar } from "./ui/calendar"; // Ensure this is a valid Calendar component
+import "./styles.css"; // Import plain CSS file
 
 const AppointmentList = () => {
   const [slots, setSlots] = useState([]);
@@ -12,13 +11,11 @@ const AppointmentList = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Use useCallback to memoize fetchSlots
+  // Fetch available slots from API
   const fetchSlots = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:5000/slots", {
-        params: {
-          date: selectedDate.toISOString().split('T')[0]
-        }
+        params: { date: selectedDate.toISOString().split('T')[0] },
       });
       setSlots(response.data);
       setLoading(false);
@@ -26,70 +23,59 @@ const AppointmentList = () => {
       setError("Failed to load available slots");
       setLoading(false);
     }
-  }, [selectedDate]); // Adding selectedDate as a dependency
+  }, [selectedDate]);
 
   useEffect(() => {
-    if (user) {
-      fetchSlots(); // Fetch slots when the user is logged in and selectedDate changes
-    }
-  }, [fetchSlots, user]); // Include fetchSlots and user as dependencies
+    if (user) fetchSlots();
+  }, [fetchSlots, user]);
 
   if (!user) {
-    return (
-      <div className="text-center p-4">
-        Please login to view available slots
-      </div>
-    );
+    return <div className="message">Please login to view available slots</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold">Available Slots</h2>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+    <div className="appointment-container">
+      <div className="card">
+        <div className="card-header">
+          <h2>Available Slots</h2>
+        </div>
+        <div className="card-content">
+          <div className="content">
+            {/* Left: Calendar */}
+            <div className="calendar-section">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 disabled={{ before: new Date() }}
-                className="rounded-md border"
               />
             </div>
-            <div className="md:col-span-2">
+
+            {/* Right: Slots List */}
+            <div className="slots-section">
               {loading ? (
-                <div className="text-center p-4">Loading slots...</div>
+                <p className="loading-text">Loading slots...</p>
               ) : error ? (
-                <div className="text-red-500 p-4">{error}</div>
+                <p className="error-text">{error}</p>
               ) : (
-                <div className="grid gap-4">
+                <ul className="slots-list">
                   {slots.map((slot, index) => (
-                    <div
-                      key={index}
-                      className="p-4 border rounded-lg hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg">{slot}</span>
-                        <Button
-                          variant="default"
-                          asChild
-                        >
-                          <a href={`/book?date=${selectedDate.toISOString().split('T')[0]}&slot=${encodeURIComponent(slot)}`}>
-                            Book Now
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
+                    <li key={index} className="slot-item">
+                      <span>{slot}</span>
+                      <a
+                        href={`/book?date=${selectedDate.toISOString().split('T')[0]}&slot=${encodeURIComponent(slot)}`}
+                        className="book-button"
+                      >
+                        Book Now
+                      </a>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

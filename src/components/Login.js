@@ -1,72 +1,102 @@
+// components/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
-import './styles.css';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
-      setError("Both fields are required.");
-      return;
-    }
+    setLoading(true);
+    setError('');
 
-    setIsLoading(true);
     try {
-      await login(formData.email, formData.password);
+      const response = await axios.post('http://localhost:3000/login', formData);
+      login(response.data.token);
       navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (error) {
+      setError(error.response?.data?.error || 'An error occurred');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Login</h2>
-        </div>
-        <div className="login-content">
-          {error && <div className="login-alert">{error}</div>}
-          <form onSubmit={handleSubmit} className="login-form">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4"
+    >
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-center mb-6">Welcome Back</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              disabled={isLoading}
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
             <input
               type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
-              disabled={isLoading}
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
             />
-            <button 
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? "Logging in..." : "Login"}
-            </button>
-          </form>
-          <div className="login-links">
-            <a href="/forgot-password">Forgot your password?</a>
-            <p>Don't have an account? <a href="/Signup">Sign up</a></p>
           </div>
-        </div>
+
+          {error && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-500 text-sm"
+            >
+              {error}
+            </motion.p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 
+                     transition-colors flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              'Login'
+            )}
+          </button>
+        </form>
+
+        <p className="text-center mt-4 text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-blue-500 hover:text-blue-600">
+            Sign up
+          </Link>
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

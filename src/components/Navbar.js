@@ -1,53 +1,109 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt, FaCog } from "react-icons/fa";
-import { useAuth } from "../auth/AuthContext"; 
-import "./styles.css";
+// components/Navbar.js
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Calendar, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const handleDropdownToggle = () => {
-    setDropdownOpen(!dropdownOpen);
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
-    <nav className="navbar">
-      <h2 className="logo">BookMySlot</h2>
-      <ul>
-        <li><Link to="/appointments">View Slots</Link></li>
-        <li><Link to="/book">Book Now</Link></li>
-        <li><Link to="/my-appointments">My Appointments</Link></li>
-      </ul>
-      <div className="user-dropdown">
-        {user ? (
-          <div className="dropdown-container">
-            <button className="dropdown-button" onClick={handleDropdownToggle}>
-              <FaUserCircle size={30} />
-            </button>
-            {dropdownOpen && (
-              <ul className="dropdown-menu">
-                {user.role === 'admin' ? (
-                  <>
-                    <li><Link to="/admin/dashboard">Admin Dashboard</Link></li>
-                    <li><Link to="/admin/manage-appointments">Manage Appointments</Link></li>
-                    <li><Link to="/admin/manage-users">Manage Users</Link></li>
-                  </>
-                ) : (
-                  <>
-                    <li><Link to="/my-profile">My Profile</Link></li>
-                    <li><Link to="/settings"><FaCog /> Settings</Link></li>
-                  </>
-                )}
-                <li><button onClick={logout}><FaSignOutAlt /> Logout</button></li>
-              </ul>
+    <nav className="bg-white shadow-lg">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="flex items-center space-x-2">
+            <Calendar className="w-8 h-8 text-blue-500" />
+            <span className="text-xl font-bold">AppointmentHub</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            {token ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <>
+                <Link 
+                  to="/login"
+                  className="text-gray-600 hover:text-blue-500 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
             )}
           </div>
-        ) : (
-          <Link to="/login">Login</Link>
-        )}
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Navigation */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden"
+          >
+            <div className="px-4 py-3 space-y-3">
+              {token ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors w-full"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <>
+                  <Link 
+                    to="/login"
+                    className="block text-gray-600 hover:text-blue-500 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link 
+                    to="/signup"
+                    className="block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

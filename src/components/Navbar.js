@@ -1,8 +1,7 @@
-// components/Navbar.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Calendar, LogOut } from 'lucide-react';
+import { Menu, X, Calendar, LogOut, ClipboardList, PlusCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -26,6 +25,24 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {token && (
+              <>
+                <Link
+                  to="/"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
+                >
+                  <PlusCircle className="w-5 h-5" />
+                  <span>Book Appointment</span>
+                </Link>
+                <Link
+                  to="/appointments"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
+                >
+                  <ClipboardList className="w-5 h-5" />
+                  <span>My Appointments</span>
+                </Link>
+              </>
+            )}
             {token ? (
               <button
                 onClick={handleLogout}
@@ -76,6 +93,22 @@ const Navbar = () => {
             className="md:hidden"
           >
             <div className="px-4 py-3 space-y-3">
+              {token && (
+                <>
+                  <Link
+                    to="/"
+                    className="block text-gray-600 hover:text-blue-500 transition-colors"
+                  >
+                    Book Appointment
+                  </Link>
+                  <Link
+                    to="/appointments"
+                    className="block text-gray-600 hover:text-blue-500 transition-colors"
+                  >
+                    My Appointments
+                  </Link>
+                </>
+              )}
               {token ? (
                 <button
                   onClick={handleLogout}

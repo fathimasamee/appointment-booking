@@ -19,6 +19,7 @@ const AppointmentBooking = () => {
     phone: '',
     notes: ''
   });
+  const [phoneError, setPhoneError] = useState('');
 
   // Fetch available slots when date changes
   useEffect(() => {
@@ -123,6 +124,22 @@ const AppointmentBooking = () => {
 
   const nextMonth = () => {
     setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)));
+  };
+
+  // Phone validation
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/; // Assuming a 10-digit phone number
+    return phoneRegex.test(phone);
+  };
+
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    setFormData({...formData, phone: value});
+    if (!validatePhone(value)) {
+      setPhoneError('Please enter a valid 10-digit phone number.');
+    } else {
+      setPhoneError('');
+    }
   };
 
   return (
@@ -253,90 +270,86 @@ const AppointmentBooking = () => {
               className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-lg p-6 max-w-md w-full"
+                initial={{ y: -50 }}
+                animate={{ y: 0 }}
+                exit={{ y: 50 }}
+                className="bg-white rounded-lg p-6 max-w-lg w-full"
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold">Book Appointment</h3>
-                  <button
-                    onClick={() => setShowBookingForm(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowBookingForm(false)}
+                  className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
 
-                <form onSubmit={handleBookAppointment} className="space-y-4">
-                  <div>
+                <h3 className="text-2xl font-semibold mb-4">Book Your Appointment</h3>
+                {bookingStatus && (
+                  <div className={`mb-4 text-center ${bookingStatus === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                    {bookingStatus === 'success' ? <Check className="w-6 h-6 inline" /> : <X className="w-6 h-6 inline" />}
+                    <p>{bookingStatus === 'success' ? 'Appointment Booked Successfully' : 'There was an error booking your appointment'}</p>
+                  </div>
+                )}
+                
+                <form onSubmit={handleBookAppointment}>
+                  <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">Name</label>
                     <input
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
-                  <div>
+                  <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">Email</label>
                     <input
                       type="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
-                  <div>
+                  <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">Phone</label>
                     <input
                       type="tel"
                       required
                       value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      onChange={handlePhoneChange}
                       className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
+                    {phoneError && <p className="text-red-500 text-xs">{phoneError}</p>}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Notes</label>
                     <textarea
                       value={formData.notes}
-                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      rows="3"
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 
-                             transition-colors flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : bookingStatus === 'success' ? (
-                      <Check className="w-5 h-5" />
-                    ) : (
-                      'Confirm Booking'
-                    )}
-                  </button>
+                  <div className="flex justify-end gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowBookingForm(false)}
+                      className="px-4 py-2 text-sm bg-gray-200 rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg"
+                    >
+                      {loading ? 'Booking...' : 'Book Appointment'}
+                    </button>
+                  </div>
                 </form>
-
-                {bookingStatus === 'error' && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-red-500 text-sm mt-2"
-                  >
-                    There was an error booking your appointment. Please try again.
-                  </motion.p>
-                )}
               </motion.div>
             </motion.div>
           )}
